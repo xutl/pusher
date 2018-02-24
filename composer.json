@@ -1,0 +1,38 @@
+{
+  "name": "xutl/pusher",
+  "description": "The pusher extension for php.",
+  "keywords": [
+    "push",
+    "pusher"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Xu TL",
+      "email": "xutongle@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6",
+    "guzzlehttp/guzzle": "^6.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5",
+    "mockery/mockery": "1.0.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "xutl\\pusher\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "xutl\\pusher\\tests\\": "tests"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
+    }
+  }
+}
