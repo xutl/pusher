@@ -10,7 +10,7 @@ namespace xutl\pusher\tests;
 use Mockery;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
-class TestCase1 extends PHPUnitTestCase
+class TestCase extends PHPUnitTestCase
 {
     public function setUp()
     {
