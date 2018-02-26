@@ -6,7 +6,9 @@
  */
 
 namespace xutl\pusher;
+
 use xutl\pusher\contracts\PushInterface;
+use xutl\pusher\support\Config;
 
 /**
  * Class Pusher
@@ -16,6 +18,10 @@ use xutl\pusher\contracts\PushInterface;
  */
 class Pusher
 {
+    const STATUS_SUCCESS = 'success';
+
+    const STATUS_FAILURE = 'failure';
+
     /**
      * @var \xutl\pusher\PusherManager
      */
@@ -31,30 +37,67 @@ class Pusher
         $this->pushManager = $pushManager;
     }
 
-    public function send($to, $message, array $channels = [])
+    /**
+     * 发送
+     * @param array|PushInterface $push
+     * @param array $channels 渠道列表
+     * @return array
+     * @throws NoChannelAvailableException
+     */
+    public function send($push, array $channels = [])
     {
-        $message = $this->formatMessage($message);
-
-
+        $push = $this->formatPush($push);
+        if (empty($channels)) {
+            $channels = $push->getChannels();
+        }
+        if (empty($channels)) {
+            $channels = $this->pushManager->getConfig()->get('channels', []);
+        }
+        $channels = $this->formatChannels($channels);
+        $results = [];
+        $isSuccessful = false;
+        foreach ($channels as $channel) {
+            try {
+                $results[$channel] = [
+                    'status' => self::STATUS_SUCCESS,
+                    'result' => $this->pushManager->channel($channel)->send($push, new Config($channels[$channel])),
+                ];
+                $isSuccessful = true;
+                break;
+            } catch (ChannelException $e) {
+                $results[$channel] = [
+                    'status' => self::STATUS_FAILURE,
+                    'exception' => $e,
+                ];
+                continue;
+            }
+        }
+        if (!$isSuccessful) {
+            throw new NoChannelAvailableException($results);
+        }
+        return $results;
     }
 
     /**
-     * 格式化消息
-     * @param array|string|PushInterface $message
+     * 格式化待推送内容
+     * @param array|string|PushInterface $push
      * @return PushInterface
      */
-    protected function formatMessage($message)
+    protected function formatPush($push)
     {
-        if (!($message instanceof PushInterface)) {
-            if (!is_array($message)) {
-                $message = [
-                    'title' => strval($message),
-                    'body' => strval($message),
+        if (!($push instanceof PushInterface)) {
+            if (!is_array($push)) {
+                $push = [
+                    'type' => PushInterface::TYPE_NOTICE,
+                    'target' => PushInterface::TARGET_ALL,
+                    'targetValue' => 'all',
+                    'title' => strval($push),
+                    'body' => strval($push),
                 ];
             }
-            $message = new Push($message);
+            $push = new Push($push);
         }
-        return $message;
+        return $push;
     }
 
     /**

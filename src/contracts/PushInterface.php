@@ -13,16 +13,46 @@ namespace xutl\pusher\contracts;
  */
 interface PushInterface
 {
+    //推送类型
     const TYPE_NOTICE = 'NOTICE';
-
     const TYPE_MESSAGE = 'MESSAGE';
+
+    //推送目标
+    const TARGET_DEVICE = 'DEVICE';
+    const TARGET_ACCOUNT = 'ACCOUNT';
+    const TARGET_ALIAS = 'ALIAS';
+    const TARGET_TAG = 'TAG';
+    const TARGET_ALL = 'ALL';
+
+    /**
+     * Return the push target.
+     *
+     * @param ChannelInterface|null $channel
+     * @return string
+     */
+    public function getTarget(ChannelInterface $channel = null);
+
+    /**
+     * Return the push target value.
+     * @param ChannelInterface|null $channel
+     * @return string
+     */
+    public function getTargetValue(ChannelInterface $channel = null);
+
+    /**
+     * Return the push device type.
+     * @param ChannelInterface|null $channel
+     * @return string
+     */
+    public function getDeviceType(ChannelInterface $channel = null);
 
     /**
      * Return the push type.
      *
+     * @param ChannelInterface|null $channel
      * @return string
      */
-    public function getPushType();
+    public function getType(ChannelInterface $channel = null);
 
     /**
      * Return the title id of message.

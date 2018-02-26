@@ -23,13 +23,12 @@ interface ChannelInterface
     public function getName();
 
     /**
-     * Send a message.
+     * Send a push.
      *
-     * @param int|string|array $target
-     * @param PushInterface $message
+     * @param PushInterface $push
      * @param \xutl\pusher\support\Config $config
      * @return array
      * @throws \xutl\pusher\ChannelException
      */
-    public function send($target, PushInterface $message, Config $config);
+    public function send(PushInterface $push, Config $config);
 }

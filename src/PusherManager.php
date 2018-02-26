@@ -7,6 +7,8 @@
 
 namespace xutl\pusher;
 
+use InvalidArgumentException;
+use xutl\pusher\contracts\ChannelInterface;
 use xutl\pusher\contracts\PushInterface;
 use xutl\pusher\support\Config;
 
@@ -46,14 +48,29 @@ class PusherManager
     /**
      * Send a message.
      *
-     * @param string|array $to
-     * @param PushInterface|array $message
-     * @param array $gateways
+     * @param PushInterface|array $push 消息内容
+     * @param array $channels 指定渠道
      * @return array
+     * @throws NoChannelAvailableException
      */
-    public function send($to, $message, array $gateways = [])
+    public function send($push, array $channels = [])
     {
-        return $this->getPusher()->send($to, $message, $gateways);
+        return $this->getPusher()->send($push, $channels);
+    }
+
+    /**
+     * Create a channel.
+     *
+     * @param string|null $name
+     * @return ChannelInterface
+     */
+    public function channel($name)
+    {
+        //$name = $name ?: $this->getDefaultChannel();
+        if (!isset($this->channels[$name])) {
+            $this->channels[$name] = $this->createChannel($name);
+        }
+        return $this->channels[$name];
     }
 
     /**
@@ -67,9 +84,45 @@ class PusherManager
     /**
      * @return Pusher
      */
-    public function getMessenger()
+    public function getPusher()
     {
         return $this->pusher ?: $this->pusher = new Pusher($this);
+    }
+
+    /**
+     * Create a new driver instance.
+     *
+     * @param string $name
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return ChannelInterface
+     */
+    protected function createChannel($name)
+    {
+        $className = $this->formatChannelClassName($name);
+        $channel = $this->makeChannel($className, $this->config->get("channels.{$name}", []));
+
+        if (!($channel instanceof ChannelInterface)) {
+            throw new InvalidArgumentException(sprintf('Channel "%s" not inherited from %s.', $name, ChannelInterface::class));
+        }
+
+        return $channel;
+    }
+
+    /**
+     * Make channel instance.
+     *
+     * @param string $channel
+     * @param array  $config
+     * @return ChannelInterface
+     */
+    protected function makeChannel($channel, $config)
+    {
+        if (!class_exists($channel)) {
+            throw new InvalidArgumentException(sprintf('Channel "%s" not exists.', $channel));
+        }
+        return new $channel($config);
     }
 
     /**
@@ -84,6 +137,6 @@ class PusherManager
             return $name;
         }
         $name = ucfirst(str_replace(['-', '_', ''], '', $name));
-        return __NAMESPACE__ . "\\channels\\{$name}";
+        return __NAMESPACE__ . "\\channels\\{$name}Channel";
     }
 }
