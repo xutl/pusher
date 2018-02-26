@@ -16,7 +16,7 @@ use xutl\pusher\support\Config;
  * @author Tongle Xu <xutongle@gmail.com>
  * @since 3.0
  */
-class PushManager
+class PusherManager
 {
     /**
      * @var Config

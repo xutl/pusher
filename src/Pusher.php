@@ -17,16 +17,16 @@ use xutl\pusher\contracts\PushInterface;
 class Pusher
 {
     /**
-     * @var \xutl\pusher\PushManager
+     * @var \xutl\pusher\PusherManager
      */
     protected $pushManager;
 
     /**
      * Messenger constructor.
      *
-     * @param \xutl\pusher\PushManager $pushManager
+     * @param \xutl\pusher\PusherManager $pushManager
      */
-    public function __construct(PushManager $pushManager)
+    public function __construct(PusherManager $pushManager)
     {
         $this->pushManager = $pushManager;
     }
@@ -35,7 +35,7 @@ class Pusher
     {
         $message = $this->formatMessage($message);
 
-        
+
     }
 
     /**
